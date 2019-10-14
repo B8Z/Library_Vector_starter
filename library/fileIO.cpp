@@ -1,4 +1,11 @@
 #include "../includes_usr/fileIO.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+
 using namespace std;
 /* clears, then loads books from the file filename
  * returns  COULD_NOT_OPEN_FILE if cannot open filename
@@ -7,6 +14,7 @@ using namespace std;
  * */
 int loadBooks(std::vector<book> &books, const char* filename)
 {
+
 	return SUCCESS;
 }
 
