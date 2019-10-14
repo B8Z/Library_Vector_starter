@@ -21,8 +21,11 @@ vector<patron> patrons;
  * then reload them from disk 
  */
 void reloadAllData() {
+	//clear data from patrons and books
 	books.clear();
 	patrons.clear();
+
+	//load data to patronfile and bookfile
 	loadBooks(books, BOOKFILE.c_str());
 	loadPatrons(patrons, PATRONFILE.c_str());
 }
@@ -34,11 +37,16 @@ void reloadAllData() {
  * 			or TRUE if patron is enrolled
  */
 bool patronEnrolled(int patronid) {
+	//loop through patron vector
 	for (patron eachPatron : patrons) {
+
+		//if patron enrolled return true
 		if (eachPatron.patron_id == patronid) {
 			return true;
 		}
 	}
+
+	//else return false
 	return false;
 }
 
@@ -49,11 +57,16 @@ bool patronEnrolled(int patronid) {
  * 			or TRUE if book is in collection
  */
 bool bookInCollection(int bookid) {
+	//loop through book vector
 	for (book eachBook : books) {
+
+		//if book is in collection return true
 		if (eachBook.book_id == bookid) {
 			return true;
 		}
 	}
+
+	//else return false
 	return false;
 }
 
@@ -78,24 +91,36 @@ bool bookInCollection(int bookid) {
  *         TOO_MANY_OUT patron has the max number of books allowed checked out
  */
 int checkout(int bookid, int patronid) {
+	//load data from patronfile and bookfile
 	loadBooks(books, BOOKFILE.c_str());
 	loadPatrons(patrons, PATRONFILE.c_str());
 
+	//if book not in collection return BOOK_NOT_IN_COLLECTION
 	if (!bookInCollection(bookid)) {
 		return BOOK_NOT_IN_COLLECTION;
 	}
+
+	//if patron not enrolled return PATRON_NOT_ENROLLED
 	if (!patronEnrolled(patronid)) {
 		return PATRON_NOT_ENROLLED;
 	}
+
+	//if patron has too many books out return MAX_BOOKS_ALLOWED_OUT
 	if (patrons[patronid].number_books_checked_out >= MAX_BOOKS_ALLOWED_OUT) {
 		return TOO_MANY_OUT;
-	} else {
+	}
+	//else check book out
+	else {
 		books[bookid].loaned_to_patron_id = patronid;
 		books[bookid].state = OUT;
 		patrons[patronid].number_books_checked_out++;
 	}
+
+	//save data to TMP_FILE
 	saveBooks(books, TMP_FILE.c_str());
 	savePatrons(patrons, TMP_FILE.c_str());
+
+	//return SUCCESS if book successfully checked out
 	return SUCCESS;
 }
 
@@ -112,20 +137,25 @@ int checkout(int bookid, int patronid) {
  * 		   BOOK_NOT_IN_COLLECTION
  */
 int checkin(int bookid) {
+	//load data from patronfile and bookfile
 	loadBooks(books, BOOKFILE.c_str());
 	loadPatrons(patrons, PATRONFILE.c_str());
 
+	//if book not in collection return BOOK_NOT_IN_COLLECTION
 	if (!bookInCollection(bookid)) {
 		return BOOK_NOT_IN_COLLECTION;
 	}
 
+	//check book in
 	patrons[books[bookid].loaned_to_patron_id].number_books_checked_out--;
 	books[bookid].loaned_to_patron_id = NO_ONE;
 	books[bookid].state = IN;
 
+	//save data to TMP_FILE
 	saveBooks(books, TMP_FILE.c_str());
 	savePatrons(patrons, TMP_FILE.c_str());
 
+	//return SUCCESS if book successfully checked in
 	return SUCCESS;
 }
 
@@ -139,18 +169,25 @@ int checkin(int bookid) {
  *    the patron_id of the person added
  */
 int enroll(std::string &name) {
+	//load data from bookfile and patronfile
 	loadBooks(books, BOOKFILE.c_str());
 	loadPatrons(patrons, PATRONFILE.c_str());
 
+	//create a new patron
 	patron newPatron;
 
+	//initialize newPatron's values
 	newPatron.name = name;
 	newPatron.number_books_checked_out = NONE;
 	newPatron.patron_id = numbPatrons();
+
+	//add new patron to vector
 	patrons.push_back(newPatron);
 
+	//save data
 	savePatrons(patrons, TMP_FILE.c_str());
 
+	//return the id of the new patron
 	return newPatron.patron_id;
 }
 
@@ -160,7 +197,10 @@ int enroll(std::string &name) {
  * 
  */
 int numbBooks() {
+	//load data from bookfile
 	loadBooks(books, BOOKFILE.c_str());
+
+	//return number of books
 	return books.size();
 }
 
@@ -169,7 +209,10 @@ int numbBooks() {
  * (ie. if 3 patrons returns 3)
  */
 int numbPatrons() {
+	//load data from patronfile
 	loadPatrons(patrons, PATRONFILE.c_str());
+
+	//return number of patrons
 	return patrons.size();
 }
 
@@ -179,9 +222,12 @@ int numbPatrons() {
  *        or PATRON_NOT_ENROLLED         
  */
 int howmanybooksdoesPatronHaveCheckedOut(int patronid) {
+	//return PATRON_NOT_ENROLLED if patron isn't enrolled
 	if (!patronEnrolled(patronid)) {
 		return PATRON_NOT_ENROLLED;
 	}
+
+	//return the number of books checked out to the patron with correct patronid
 	return patrons[patronid].number_books_checked_out;
 }
 
@@ -192,9 +238,12 @@ int howmanybooksdoesPatronHaveCheckedOut(int patronid) {
  *         PATRON_NOT_ENROLLED no patron with this patronid
  */
 int whatIsPatronName(std::string &name, int patronid) {
+	//return PATRON_NOT_ENROLLED if patron isn't enrolled
 	if (!patronEnrolled(patronid)) {
 		return PATRON_NOT_ENROLLED;
 	}
+
+	//return success if patron's name is found
 	return SUCCESS;
 }
 
